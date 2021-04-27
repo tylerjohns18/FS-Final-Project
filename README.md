@@ -3,4 +3,4 @@
 ## Side Notes
   - Subnet hardcoded
   - server address hardcoded
-  - ip range limited to 100-120
+  - ip range hardcoded to 100-120
